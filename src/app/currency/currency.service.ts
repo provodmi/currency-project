@@ -21,11 +21,11 @@ export class CurrencyService {
   constructor(private http: HttpClient) {
   }
 
-  getExchangeRatesJson(): Observable<Currency[]> {
+  getExchangeRatesJson(): Observable<{ [key: string]: Currency }> {
     return this.http.get('/currency-api/daily_json.js').pipe(map((value) => value['Valute']));
   }
 
-  getExchangeRatesXml(): Observable<any> {
+  getExchangeRatesXml(): Observable<{ [key: string]: Currency }> {
     const currencyReducer = (acc, oldVal) => {
       const newVal = Object.keys(oldVal).reduce((acc2, key) => {
         if (key === '@attributes') {
@@ -45,7 +45,7 @@ export class CurrencyService {
       .pipe(
         map(res => {
           const parser = new DOMParser();
-          return this.xmlToJson(parser.parseFromString(res.body, 'text/xml'));
+          return this.xmlToObject(parser.parseFromString(res.body, 'text/xml'));
         }),
         map((value) => {
           const Valute = value['ValCurs']['Valute'];
@@ -55,7 +55,7 @@ export class CurrencyService {
   }
 
 
-  xmlToJson(xml): {} {
+  xmlToObject(xml): {} {
     let obj = {};
     if (xml.nodeType === 1) {
       // element
@@ -77,14 +77,14 @@ export class CurrencyService {
         const item = xml.childNodes.item(i);
         const nodeName = item.nodeName;
         if (typeof (obj[nodeName]) === 'undefined') {
-          obj[nodeName] = this.xmlToJson(item);
+          obj[nodeName] = this.xmlToObject(item);
         } else {
           if (typeof (obj[nodeName].push) === 'undefined') {
             const old = obj[nodeName];
             obj[nodeName] = [];
             obj[nodeName].push(old);
           }
-          obj[nodeName].push(this.xmlToJson(item));
+          obj[nodeName].push(this.xmlToObject(item));
         }
       }
     }
