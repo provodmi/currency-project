@@ -1,0 +1,11 @@
+{
+  "/currency-api": {
+    "target": "https://www.cbr-xml-daily.ru",
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/currency-api": ""
+    }
+  }
+}
